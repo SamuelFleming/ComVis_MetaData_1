@@ -1,6 +1,9 @@
 import os
 from export_class import MetaDataset
 
+import tkinter as tk
+from tkinter import filedialog
+
 
 '''
 
@@ -30,7 +33,27 @@ def get_directory_name():
         else:
             print(f"The directory '{directory_name}' does not exist in the current working directory. Please try again.")
 
+
+def select_directory():
+    """
+    Opens a file explorer window for the user to select a directory.
+    Returns the path of the selected directory.
+    """
+    root = tk.Tk()
+    root.withdraw()  # Hides the small tkinter window
+
+    # Opens the directory selection dialog
+    directory_path = filedialog.askdirectory()
+    
+    return directory_path
+
+
+
 # export_name = get_directory_name() #here the cpde promtps the user to enter the name of the export from the cwd
+# export_name = select_directory() # this opens a dialog box using tkinter that allows the user to specify which roboflow export they woudl like to select.
+
+
+
 export_name = 'roboflow_export'#here is where the name of the export directory is specified
 
 default_path = os.getcwd() + '/roboflow_export'
