@@ -2,7 +2,7 @@ import os
 import pickle
 
 
-class Dataset:
+class MetaDataset:
     def __init__(self, path='none-specified'):
         '''
         Contrauctor for roboflow datatset class
@@ -18,6 +18,9 @@ class Dataset:
         else:
             self.path = os.path.abspath(path)
             self.get_split_paths(path)
+            self.get_metadata()
+            self.save_metadata_default()
+        
 
     
     def save_metadata_default(self):
@@ -47,17 +50,19 @@ class Dataset:
         self.val_labels = list_txt_files_and_content(self.val_path_labels)
 
     def get_split_paths(self, path):
+        images_dirname = 'images'
+        labels_dirname = 'labels'
         self.train_path = os.path.join(path, 'train')
-        self.train_path_image = os.path.join(self.train_path, 'Images')
-        self.train_path_labels = os.path.join(self.train_path, 'Labels')
+        self.train_path_image = os.path.join(self.train_path, images_dirname)
+        self.train_path_labels = os.path.join(self.train_path, labels_dirname)
 
         self.test_path = os.path.join(path, 'test')
-        self.test_path_image = os.path.join(self.test_path, 'Images')
-        self.test_path_labels = os.path.join(self.test_path, 'Labels')
+        self.test_path_image = os.path.join(self.test_path, images_dirname)
+        self.test_path_labels = os.path.join(self.test_path, labels_dirname)
 
-        self.val_path = os.path.join(path, 'val')
-        self.val_path_image = os.path.join(self.val_path, 'Images')
-        self.val_path_labels = os.path.join(self.val_path, 'Labels')
+        self.val_path = os.path.join(path, 'valid')
+        self.val_path_image = os.path.join(self.val_path, images_dirname)
+        self.val_path_labels = os.path.join(self.val_path, labels_dirname)
 
 def list_jpg_files(directory_path):
     """
