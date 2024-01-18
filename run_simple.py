@@ -50,11 +50,11 @@ def select_directory():
 
 
 # export_name = get_directory_name() #here the cpde promtps the user to enter the name of the export from the cwd
-# export_name = select_directory() # this opens a dialog box using tkinter that allows the user to specify which roboflow export they woudl like to select.
+export_name = select_directory() # this opens a dialog box using tkinter that allows the user to specify which roboflow export they woudl like to select.
 
 
 
-export_name = 'roboflow_export'#here is where the name of the export directory is specified
+# export_name = 'roboflow_export'#here is where the name of the export directory is specified
 
 default_path = os.getcwd() + '/roboflow_export'
 

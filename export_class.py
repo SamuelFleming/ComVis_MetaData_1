@@ -17,9 +17,11 @@ class MetaDataset:
             print('[Non Path Specified]')
         else:
             self.path = os.path.abspath(path)
+            self.name = os.path.basename(path)
             self.get_split_paths(path)
             self.get_metadata()
             self.save_metadata_default()
+            
         
 
     
@@ -33,7 +35,7 @@ class MetaDataset:
         #if save directory doesnt exist, create it (very rare case)
         if not os.path.exists(dir):
             os.makedirs(dir)
-        path = os.path.join(dir, 'meta.pkl')
+        path = os.path.join(dir, self.name + '_meta.pkl')
         self.abs = os.path.abspath(path) #absolute path of the instance storage
         #save self to the absolute path
         with open(self.abs, 'wb') as output_file:
