@@ -7,8 +7,8 @@ from tkinter import filedialog
 
 '''
 
-This file is a runnable python file that showcases the operation of the roboflow export pickle class
-by using the example roboflow export, directory 'roboflow_export' in the project directory.
+This file is a runnable python file that showcases the operation of the roboflow export pickle class.
+The user selects the robo flow export directory and it calls the constructor to the class which saves the pickle file.
 
 This export is of a roboflow computer vision annotated dataset with three subdirectories:
     - train/, test/ and val/
@@ -49,13 +49,9 @@ def select_directory():
 
 
 
-# export_name = get_directory_name() #here the cpde promtps the user to enter the name of the export from the cwd
 export_name = select_directory() # this opens a dialog box using tkinter that allows the user to specify which roboflow export they woudl like to select.
-
-
-
-# export_name = 'roboflow_export'#here is where the name of the export directory is specified
 
 default_path = os.getcwd() + '/roboflow_export'
 
 Dataset = MetaDataset(default_path)
+
