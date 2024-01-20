@@ -51,11 +51,11 @@ class MetaDataset:
 
         # self.val_images, self.val_labels = list_txt_files_and_content(self.val_path_labels)
 
-        self.train_labels = get_content(self.train_path_labels)
+        self.train_labels:Sample = get_content(self.train_path_labels)
  
-        self.test_labels = get_content(self.test_path_labels)
+        self.test_labels:Sample = get_content(self.test_path_labels)
 
-        self.val_labels = get_content(self.val_path_labels)
+        self.val_labels:Sample = get_content(self.val_path_labels)
 
     def get_split_paths(self, path):
         '''
@@ -100,6 +100,22 @@ class MetaDataset:
                 annotations = sample.get_annotations()
                 for annotation in annotations:
                     all_centers.append(annotation.geo_center)
+
+        return 
+    
+    def database_import_ready(self):
+        """
+        Collects all the center points of the annotations in train, test, and val sets.
+        """
+        all_centers = []
+
+        for label_set in [self.train_labels, self.test_labels, self.val_labels]:
+            for sample in label_set:
+                name = sample.get_image_name()
+                bbox = sample.coords
+                annotations = sample.get_annotations()
+                for annotation in annotations:
+                    all_centers.append([name, bbox, annotation.geo_center])
 
         return all_centers
 
@@ -203,15 +219,15 @@ class Sample:
         """
         Take a filename of an image sample, replace hyphens with dots only if they are
         not at the start or not prefixed by an underscore, and return its identifying coordinates.
-        
+
         Splits the image name at its underscores, removes the extension, 
-        and returns the four values split by the underscores.
+        and returns the four values split by the underscores as floats.
 
         Params:
         image_name: Name of the image file
 
         Return:
-        values: Four values split by the underscores (array of size four)
+        values: Four values split by the underscores as floats (array of size four)
         """
         # Replace hyphens with dots except if at the start or prefixed by an underscore
         modified_name = ''
@@ -225,10 +241,13 @@ class Sample:
         name_without_extension = modified_name.rsplit('.', 1)[0]
 
         # Split at underscores and take the first four values
-        values = name_without_extension.split('_')[:4]
-        print(values)
+        string_values = name_without_extension.split('_')[:4]
+
+        # Convert each string value to a float
+        values = [float(value) for value in string_values]
 
         return values
+
 
 
         

@@ -83,6 +83,11 @@ else:
 
 loaded_dataset = load_metadata_from_pickle(absolute_path)
 
-centers = loaded_dataset.collect_all_annotation_centers_coords()
-print(centers)
-print(len(centers))
+centers = loaded_dataset.database_import_ready()
+#print(centers)
+#print(len(centers))
+
+# Saving the centers to a text file
+with open('dataset_bridges.txt', 'w') as file:
+    for center in centers:
+        file.write(f'{center}\n')
