@@ -47,11 +47,13 @@ def select_directory():
     
     return directory_path
 
+export_name = select_directory()
 
+if export_name:  # Checks if a directory was selected
+    absolute_path = os.path.abspath(export_name)  # Converts the selected path to an absolute path
+else:
+    # Fallback to default path if no folder is selected
+    absolute_path = os.path.abspath(os.getcwd() + '/roboflow_export')
 
-export_name = select_directory() # this opens a dialog box using tkinter that allows the user to specify which roboflow export they woudl like to select.
-
-default_path = os.getcwd() + '/roboflow_export'
-
-Dataset = MetaDataset(default_path)
+Dataset = MetaDataset(absolute_path)  # Initialize the MetaDataset with the absolute path
 

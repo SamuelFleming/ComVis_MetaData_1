@@ -74,6 +74,35 @@ class MetaDataset:
         self.val_path = os.path.join(path, 'valid')
         self.val_path_image = os.path.join(self.val_path, images_dirname)
         self.val_path_labels = os.path.join(self.val_path, labels_dirname)
+    
+    def collect_all_annotation_centers(self):
+        """
+        Collects all the center points of the annotations in train, test, and val sets.
+        """
+        all_centers = []
+
+        for label_set in [self.train_labels, self.test_labels, self.val_labels]:
+            for sample in label_set:
+                annotations = sample.get_annotations()
+                for annotation in annotations:
+                    all_centers.append(annotation.center)
+
+        return all_centers
+    
+    def collect_all_annotation_centers_coords(self):
+        """
+        Collects all the center points of the annotations in train, test, and val sets.
+        """
+        all_centers = []
+
+        for label_set in [self.train_labels, self.test_labels, self.val_labels]:
+            for sample in label_set:
+                annotations = sample.get_annotations()
+                for annotation in annotations:
+                    all_centers.append(annotation.geo_center)
+
+        return all_centers
+
 
 
 
@@ -146,7 +175,8 @@ class Sample:
         txt_file_path = self.label_path
         with open(txt_file_path, 'r', encoding='utf-8') as f:
                 for line in f:
-                    annotations.append(Annotation(line, self.pixel_len, self.pixel_wid))
+                    annotations.append(Annotation(line, self.pixel_len, self.pixel_wid, self.coords))
+        return annotations
 
 
 
@@ -171,24 +201,36 @@ class Sample:
 
     def get_coords(self, image_name):
         """
-        Take a filename of an image sample and return its identifying coordinates
+        Take a filename of an image sample, replace hyphens with dots only if they are
+        not at the start or not prefixed by an underscore, and return its identifying coordinates.
         
-        Splits the image name at its hyphens, removes the extension, 
-        and returns the four values split by the hyphens.
+        Splits the image name at its underscores, removes the extension, 
+        and returns the four values split by the underscores.
 
-        Params:\n
-        image_name: Name of the image file\n
+        Params:
+        image_name: Name of the image file
 
         Return:
-        values: Four values split by the hyphens (array of size four)
+        values: Four values split by the underscores (array of size four)
         """
+        # Replace hyphens with dots except if at the start or prefixed by an underscore
+        modified_name = ''
+        for i, char in enumerate(image_name):
+            if char == '-' and i != 0 and image_name[i - 1] != '_':
+                modified_name += '.'
+            else:
+                modified_name += char
+
         # Remove the file extension
-        name_without_extension = image_name.rsplit('.', 1)[0]
+        name_without_extension = modified_name.rsplit('.', 1)[0]
 
         # Split at underscores and take the first four values
         values = name_without_extension.split('_')[:4]
+        print(values)
 
         return values
+
+
         
 
     def get_image_path_from_annotation(self):
@@ -218,21 +260,49 @@ class Sample:
 
 
 class Annotation:
-    def __init__(self, data, sample_l, sample_h):
+    def __init__(self, data, sample_l, sample_h, sample_coords):
         self.class_id, coords = self.process_line(data)
         self.pixel_coords = self.convert_points_to_pixel(coords, sample_l, sample_h)
         self.center = self.get_center_polygon()
+        self.geo_center = self.convert_to_geo_coordinates(self.center, sample_coords)
 
+    @staticmethod
     def process_line(line):
-        '''
-        Process the line and return the parsed data
+        """
+        Process the line and return the parsed data.
 
         Assuming the format is: class_id x1 y1 x2 y2 ... xn yn x1 y1
-        '''
+        """
         data = line.strip().split()
         class_id = int(data[0])
         coords = [float(coord) for coord in data[1:]]
         return class_id, coords
+        
+    @staticmethod
+    def convert_to_geo_coordinates(center, sample_coords):
+        """
+        Convert the center pixel coordinates to latitude and longitude.
+
+        :param center: Tuple of (x, y) center pixel coordinates.
+        :param sample_coords: Tuple of (lat_min, lon_min, lat_max, lon_max).
+        :return: Tuple of (latitude, longitude).
+        """
+        image_size = 1280  # Assuming a constant image size - adjust if needed
+        x, y = center
+
+        # Ensure the coordinates are floats
+        lat_min, lon_min, lat_max, lon_max = map(float, sample_coords)
+
+        delta_lat = abs(lat_max - lat_min)
+        delta_lon = abs(lon_max - lon_min)
+
+        px_x = x / image_size
+        px_y = y / image_size
+
+        lat_coords = lat_max - delta_lat * px_y
+        lon_coords = lon_min + delta_lon * px_x
+
+        return lat_coords, lon_coords
 
     def convert_points_to_pixel(self, coords, img_length, img_height):
         """
@@ -270,8 +340,3 @@ class Annotation:
         center = (centroid_x, centroid_y)
 
         return center
-
-
-
-
-
