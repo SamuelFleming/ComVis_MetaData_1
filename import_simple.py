@@ -1,4 +1,5 @@
 import pickle
+import json
 import os
 from export_class import MetaDataset
 
@@ -87,7 +88,6 @@ centers = loaded_dataset.database_import_ready()
 #print(centers)
 #print(len(centers))
 
-# Saving the centers to a text file
-with open('dataset_bridges.txt', 'w') as file:
-    for center in centers:
-        file.write(f'{center}\n')
+# Saving the centers to a JSON file
+with open('dataset_bridges.json', 'w') as file:
+    json.dump(centers, file, indent=4)

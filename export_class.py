@@ -105,9 +105,11 @@ class MetaDataset:
     
     def database_import_ready(self):
         """
-        Collects all the center points of the annotations in train, test, and val sets.
+        Collects all the center points of the annotations in train, test, and val sets
+        and prepares them for database import, including a Street View URL for each.
         """
-        all_centers = []
+        all_entries = []
+        street_view_base_url = "https://maps.google.com/?cbll="
 
         for label_set in [self.train_labels, self.test_labels, self.val_labels]:
             for sample in label_set:
@@ -115,10 +117,13 @@ class MetaDataset:
                 bbox = sample.coords
                 annotations = sample.get_annotations()
                 for annotation in annotations:
-                    all_centers.append([name, bbox, annotation.geo_center])
+                    # Generate the Google Street View URL using the geo_center
+                    lat, lon = annotation.geo_center
+                    street_view_url = f"{street_view_base_url}{lat},{lon}&cbp=12,90,0,0,5&layer=c"
+                    # Append the data entry with the Street View URL
+                    all_entries.append([name, bbox, annotation.geo_center, street_view_url])
 
-        return all_centers
-
+        return all_entries
 
 
 
